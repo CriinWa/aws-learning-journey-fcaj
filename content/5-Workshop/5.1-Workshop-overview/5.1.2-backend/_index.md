@@ -48,6 +48,48 @@ The table covers **api.main** and **api.app**. Auth column: ✓ = Cognito JWT re
 | **/api/admin/documents/{id}** | PATCH | ✓ | Update document metadata |
 | **/api/admin/documents/{id}** | DELETE | ✓ | Soft-delete a document |
 
+## Backend Architecture Diagram
+
+{{< mermaid >}}
+graph TB
+    subgraph "Docker Compose (EC2)"
+        ST["Streamlit :8501"] -->|POST /ask| API["FastAPI :8000"]
+        API --> QA["QAService"]
+    end
+
+    QA --> EMB["Embedding<br/>(SentenceTransformer / Bedrock Titan)"]
+    EMB --> VS["pgvector Search<br/>(RDS PostgreSQL)"]
+    VS --> RR["Reranker<br/>(Cross-encoder)"]
+    RR --> PR["Prompt Builder"]
+    PR --> LLM["LLM<br/>(Gemini / Bedrock)"]
+    LLM --> RES["Response + Sources"]
+
+    API -->|JWT verify| COG["Cognito JWKS"]
+    API -->|Chat history| DDB["DynamoDB"]
+{{< /mermaid >}}
+
+## Ingestion Flow Diagram
+
+{{< mermaid >}}
+sequenceDiagram
+    participant Admin
+    participant API as FastAPI
+    participant S3 as S3
+    participant SQS as SQS
+    participant Lambda as Lambda
+    participant RDS as RDS pgvector
+
+    Admin->>API: POST /api/admin/documents/upload-url
+    API-->>Admin: Presigned URL
+    Admin->>S3: PUT file
+    S3->>SQS: ObjectCreated event
+    SQS->>Lambda: Trigger
+    Lambda->>S3: Download file
+    Lambda->>Lambda: Chunk + Embed
+    Lambda->>RDS: Upsert vectors
+    Note over SQS: Failure → DLQ
+{{< /mermaid >}}
+
 ## Backend flows
 
 ### Flow 1 — Demo Q&A

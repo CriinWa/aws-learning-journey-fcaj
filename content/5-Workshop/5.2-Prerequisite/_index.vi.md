@@ -1,6 +1,6 @@
 ---
-title: "Prerequisites"
-date: 2024-01-01
+title: "Các bước chuẩn bị"
+date: 2026-08-11
 weight: 2
 chapter: false
 pre: " <b> 5.2. </b> "
@@ -8,7 +8,6 @@ pre: " <b> 5.2. </b> "
 
 # Prerequisites — Các bước chuẩn bị
 
-Trong phạm vi hiện tại, phần chuẩn bị chỉ dừng ở **5.2.1** và **5.2.2**, bám vào các thành phần có thật trong repo `vietnamese-legal-llmops`.
 
 ## 5.2.1. Chuẩn bị source code
 
@@ -18,8 +17,13 @@ Trong phạm vi hiện tại, phần chuẩn bị chỉ dừng ở **5.2.1** và
 - Cài dependencies từ `requirements.txt`
 - Tạo file `.env` từ `.env.sample`
 
+
+**Lệnh cài đặt nhanh (Quick setup):**
+
+Sử dụng các lệnh sau để clone source code và chuẩn bị môi trường:
+
 ```bash
-git clone <your-repo-url> vietnamese-legal-llmops
+git clone https://github.com/KhanhKoy/vietnamese-legal-llmops
 cd vietnamese-legal-llmops
 cp .env.sample .env
 python -m venv .venv
@@ -27,9 +31,17 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-{{% notice warning %}}
-Không commit file `.env` vì `.env.sample` hiện có các biến nhạy cảm như `PGPASSWORD`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `GEMINI_API_KEY`.
-{{% /notice %}}
+Hãy đảm bảo bạn đã điền đầy đủ các biến trong file `.env` trước khi chạy các module chính.
+
+```bash
+git clone https://github.com/KhanhKoy/vietnamese-legal-llmops
+cd vietnamese-legal-llmops
+cp .env.sample .env
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
 
 **Những file nên đọc trước khi chạy repo:**
 
@@ -93,10 +105,4 @@ graph LR;
     D --> E["vector_store.py"]
 {{< /mermaid >}}
 
-**Checklist tối thiểu trước khi sang bước tiếp theo:**
 
-- [ ] Đã clone repo và cài dependencies
-- [ ] Đã tạo `.env` từ `.env.sample`
-- [ ] Đã chọn nguồn dữ liệu: Hugging Face hoặc `data_demo/`
-- [ ] Đã hiểu các biến `HF_DATASET_NAME`, `LOCAL_DEMO_PATH`, `CHUNK_SIZE_CHARS`
-- [ ] Đã xác định cách chạy: Streamlit, Chainlit hoặc FastAPI

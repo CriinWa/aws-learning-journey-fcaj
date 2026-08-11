@@ -1,3 +1,5 @@
+ 
+
 ---
 title: "Worklog"
 date: 2026-08-15
@@ -5,7 +7,6 @@ weight: 1
 chapter: false
 pre: " <b> 1. </b> "
 ---
-
 **Week 1:** [AWS Foundations, Security, Cost Management, and Networking](1.1-week1/)
 
 **Week 2:** [Learning and Practicing Compute, Monitoring, Scaling, and Backup Services](1.2-week2/)

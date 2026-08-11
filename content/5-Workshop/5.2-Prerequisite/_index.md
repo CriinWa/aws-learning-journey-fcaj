@@ -87,7 +87,7 @@ PGPASSWORD=<password>
 - Clone the project and create a production `.env`
 - Verify EC2 can reach RDS and Bedrock
 
-![EC2 instance](/images/5-Workshop/5.2-Prerequisite/ec2.png)
+![EC2 instance](images/5-Workshop/5.2-Prerequisite/ec2.png)
 
 ```bash
 sudo yum install -y docker git

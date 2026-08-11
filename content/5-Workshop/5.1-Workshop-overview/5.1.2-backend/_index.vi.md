@@ -8,26 +8,10 @@ pre: " <b> 5.1.2 </b> "
 
 # Backend
 
-Backend Law-Chatbot gồm **FastAPI** và lớp **RAG Core**. Có **hai app FastAPI** dùng chung QAService nhưng phục vụ hai kịch bản khác nhau.
-
-## Hai FastAPI app
-
-| | **api.main** | **api.app + routes** |
-| --- | --- | --- |
-| File | src/api/main.py | src/api/app.py, src/api/routes.py |
-| Mục đích | API mỏng cho Streamlit / demo EC2 | API đầy đủ có Cognito |
-| Prefix | Không | **/api** |
-| Auth | Không trên **/ask** | JWT Cognito; AUTH_DISABLED → user giả admin |
-| Docs | Swagger mặc định | **/docs** chỉ khi ENABLE_API_DOCS=true |
-| Khi nào dùng | Đường deploy chính Compose | Override API_MODULE=api.app:app |
-
-Entrypoint: uvicorn với API_MODULE mặc định api.main:app; PYTHONPATH gồm /app và /app/src.
-
-**Đường demo EC2:** api.main cổng **8000**, Streamlit gọi **POST /ask**.
+Giới thiệu....
 
 ## Endpoints
 
-Bảng dưới gồm endpoint của **api.main** và **api.app**. Cột Auth: ✓ = cần JWT Cognito; — = không cần.
 
 | Endpoint | Method | Auth | Desc |
 | --- | --- | --- | --- |
@@ -48,6 +32,48 @@ Bảng dưới gồm endpoint của **api.main** và **api.app**. Cột Auth: �
 | **/api/admin/documents/{id}** | PATCH | ✓ | Cập nhật metadata tài liệu |
 | **/api/admin/documents/{id}** | DELETE | ✓ | Soft-delete tài liệu |
 
+## Sơ đồ kiến trúc Backend
+
+{{< mermaid >}}
+graph TB
+    subgraph "Docker Compose (EC2)"
+        ST["Streamlit :8501"] -->|POST /ask| API["FastAPI :8000"]
+        API --> QA["QAService"]
+    end
+
+    QA --> EMB["Embedding<br/>(SentenceTransformer / Bedrock Titan)"]
+    EMB --> VS["pgvector Search<br/>(RDS PostgreSQL)"]
+    VS --> RR["Reranker<br/>(Cross-encoder)"]
+    RR --> PR["Prompt Builder"]
+    PR --> LLM["LLM<br/>(Gemini / Bedrock)"]
+    LLM --> RES["Response + Sources"]
+
+    API -->|JWT verify| COG["Cognito JWKS"]
+    API -->|Chat history| DDB["DynamoDB"]
+{{< /mermaid >}}
+
+## Sơ đồ luồng Ingestion
+
+{{< mermaid >}}
+sequenceDiagram
+    participant Admin
+    participant API as FastAPI
+    participant S3 as S3
+    participant SQS as SQS
+    participant Lambda as Lambda
+    participant RDS as RDS pgvector
+
+    Admin->>API: POST /api/admin/documents/upload-url
+    API-->>Admin: Presigned URL
+    Admin->>S3: PUT file
+    S3->>SQS: ObjectCreated event
+    SQS->>Lambda: Trigger
+    Lambda->>S3: Download file
+    Lambda->>Lambda: Chunk + Embed
+    Lambda->>RDS: Upsert vectors
+    Note over SQS: Failure → DLQ
+{{< /mermaid >}}
+
 ## Các flow Backend
 
 ### Flow 1 — Hỏi đáp demo
@@ -64,7 +90,7 @@ Bảng dưới gồm endpoint của **api.main** và **api.app**. Cột Auth: �
 8. Generator gọi Gemini hoặc Bedrock
 9. Trả JSON: answer + sources
 
-**Tóm tắt:** Câu hỏi → Embed → Retrieve → Prompt → LLM → Câu trả lời có nguồn
+**Tóm tắt:** Câu hỏi → Embed → Retrieve → Prompt → LLM → Câu trả lời có nguồn (Bỏ hình thay thế)
 
 ### Flow 2 — Build index
 
@@ -126,9 +152,7 @@ Module chính trong **src/rag_core/**:
 | document_manager.py | PDF → chunk → embed → store |
 | lambda_handler.py | Worker ingestion S3/SQS |
 
-### Pipeline hỏi đáp và index
 
-Chi tiết từng bước nằm ở mục **Các flow Backend** phía trên. Các module trong bảng dưới đây được QAService và pipeline gọi theo đúng thứ tự đó.
 
 ## Auth
 
@@ -137,17 +161,3 @@ Chi tiết từng bước nằm ở mục **Các flow Backend** phía trên. Cá
 - **AUTH_DISABLED=true:** tạo user giả có đủ group admins/editors/users — chỉ cho compose/dev gắn Streamlit
 - Cognito admin: src/services/cognito_admin.py
 
-## Nhóm biến cấu hình
-
-Không paste secret vào báo cáo — chỉ nêu **tên biến**:
-
-| Nhóm | Ví dụ biến |
-| --- | --- |
-| Data / chunk | HF_DATASET_NAME, LOCAL_DEMO_PATH, CHUNK_SIZE_CHARS, CHUNK_OVERLAP_CHARS |
-| Embedding | EMBEDDING_MODEL_NAME, USE_BEDROCK_EMBEDDING, BEDROCK_EMBEDDING_MODEL, TOP_K |
-| LLM | LLM_PROVIDER, GEMINI_API_KEY, GEMINI_MODEL_NAME, BEDROCK_LLM_MODEL_ID |
-| Postgres | USE_PGVECTOR, PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD |
-| AWS / S3 | AWS_DEFAULT_REGION, USE_S3, LEGAL_DOCUMENTS_BUCKET, VECTOR_S3_* |
-| API / Cognito | AUTH_DISABLED, ENABLE_API_DOCS, COGNITO_USER_POOL_ID, COGNITO_APP_CLIENT_ID |
-| DynamoDB / Chainlit | DYNAMODB_*, ENABLE_CHAT_HISTORY, CHAINLIT_DEV_* |
-| Runtime | API_URL, APP_DB_BACKEND, API_MODULE, APP_MODE, PORT |
