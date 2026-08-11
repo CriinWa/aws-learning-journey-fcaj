@@ -43,3 +43,7 @@ Thông qua giải pháp này, thời gian phản ứng với mối đe dọa b�
 Đây là một ví dụ tuyệt vời về mô hình Security Automation, nơi các dịch vụ AWS không đứng rời rạc mà được móc nối thành một kịch bản phòng ngự chủ động.
 
 Nguồn tham khảo: https://aws.amazon.com/vi/blogs/security/automating-identity-lifecycle-and-security-with-aws-directory-service-apis/
+
+![Blog3-1](https://criinwa.github.io/aws-learning-journey-fcaj/images/3-Blog/Blog3-1.jpg)
+
+![Blog3-2](https://criinwa.github.io/aws-learning-journey-fcaj/images/3-Blog/Blog3-2.jpg)

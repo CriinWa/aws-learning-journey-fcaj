@@ -41,3 +41,7 @@ With this approach, the response time to a security threat becomes nearly real-t
 This is a strong example of security automation, where AWS services are connected into a proactive defense workflow instead of existing as isolated tools.
 
 Reference: https://aws.amazon.com/vi/blogs/security/automating-identity-lifecycle-and-security-with-aws-directory-service-apis/
+
+![Blog3-1](https://criinwa.github.io/aws-learning-journey-fcaj/images/3-Blog/Blog3-1.jpg)
+
+![Blog3-2](https://criinwa.github.io/aws-learning-journey-fcaj/images/3-Blog/Blog3-2.jpg)

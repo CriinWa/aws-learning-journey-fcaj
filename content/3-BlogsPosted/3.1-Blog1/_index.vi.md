@@ -50,3 +50,5 @@ Hiện tại, mã nguồn của Lore đã có trên GitHub và AWS cũng đã pu
 Trong tương lai, kiến trúc này hứa hẹn sẽ còn mở rộng với khả năng triển khai multi-region và tích hợp sâu hơn vào hệ sinh thái Unreal Engine. Nếu anh em nào đang làm DevOps cho Game Studio thì chắc chắn không nên bỏ qua giải pháp này!
 
 **Nguồn tham khảo:** https://aws.amazon.com/vi/blogs/gametech/how-lore-rethinks-binary-asset-storage-on-aws/
+
+![Blog1](https://criinwa.github.io/aws-learning-journey-fcaj/images/3-Blog/Blog1.jpg)

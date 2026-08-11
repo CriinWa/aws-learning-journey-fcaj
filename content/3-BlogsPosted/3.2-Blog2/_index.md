@@ -63,3 +63,6 @@ AWS recommends rolling this out in three stages instead of trying everything at 
 This article changed how I think about cloud security. We cannot only lock the front door (ingress); we must also watch the back door (egress) very closely. This becomes even more important when AI models and AI agents are part of the system, because controlling the APIs they can call is essential to prevent prompt injection from leaking company data.
 
 Reference: https://aws.amazon.com/vi/blogs/security/prevent-data-exfiltration-aws-egress-controls-for-cloud-workloads/
+
+
+![Blog2](https://criinwa.github.io/aws-learning-journey-fcaj/images/3-Blog/Blog2.jpg)

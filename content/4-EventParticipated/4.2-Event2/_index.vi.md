@@ -88,8 +88,8 @@ Khi trình bày giải pháp, đội thi cần giải thích được chi phí, 
 
 #### Một số hình ảnh khi tham gia sự kiện
 
-<div style="display: flex; gap: 12px; justify-content: space-between; align-items: center; margin: 15px 0;">
-	{{< event-image src="/images/4-EventParticipated/event2-1.jpg" alt="Hình ảnh sự kiện 2 - 1" >}}
-	{{< event-image src="/images/4-EventParticipated/event2-2.jpg" alt="Hình ảnh sự kiện 2 - 2" >}}
-	{{< event-image src="/images/4-EventParticipated/event2-3.jpg" alt="Hình ảnh sự kiện 2 - 3" >}}
-</div>
+![Hình ảnh sự kiện 2 - 1](https://criinwa.github.io/aws-learning-journey-fcaj/images/4-EventParticipated/event2-1.jpg)
+
+![Hình ảnh sự kiện 2 - 2](https://criinwa.github.io/aws-learning-journey-fcaj/images/4-EventParticipated/event2-2.jpg)
+
+![Hình ảnh sự kiện 2 - 3](https://criinwa.github.io/aws-learning-journey-fcaj/images/4-EventParticipated/event2-3.jpg)

@@ -50,3 +50,6 @@ Today, Lore's source code is available on GitHub, and AWS has also published an 
 In the future, this architecture could expand to multi-region deployments and deeper integration with the Unreal Engine ecosystem. If you work in DevOps for a game studio, this is definitely a solution worth paying attention to.
 
 **Reference:** https://aws.amazon.com/vi/blogs/gametech/how-lore-rethinks-binary-asset-storage-on-aws/
+
+
+![Blog1](https://criinwa.github.io/aws-learning-journey-fcaj/images/3-Blog/Blog1.jpg)

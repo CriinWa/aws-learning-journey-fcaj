@@ -63,3 +63,6 @@ AWS khuyên anh em không nên làm tất cả cùng lúc mà chia thành 3 giai
 Qua bài viết này, mình nhận thấy tư duy bảo mật Cloud đã thay đổi. Chúng ta không chỉ khóa cửa trước (Ingress) mà phải giám sát cực kỳ chặt chẽ cửa sau (Egress). Đặc biệt, khi tích hợp AI (LLM, AI Agents) vào hệ thống, việc kiểm soát chúng gọi API ra ngoài là bắt buộc để tránh trở thành nạn nhân của Prompt Injection tuồn dữ liệu công ty.
 
 Nguồn tham khảo: https://aws.amazon.com/vi/blogs/security/prevent-data-exfiltration-aws-egress-controls-for-cloud-workloads/
+
+
+![Blog2](https://criinwa.github.io/aws-learning-journey-fcaj/images/3-Blog/Blog2.jpg)

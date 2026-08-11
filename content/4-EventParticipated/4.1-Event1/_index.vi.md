@@ -214,8 +214,8 @@ Buổi chia sẻ **FCAJ Community Day - June 2026** đã mang lại cho em một
 
 #### Một số hình ảnh khi tham gia sự kiện
 
-<div style="display: flex; gap: 12px; justify-content: space-between; align-items: center; margin: 15px 0;">
-  {{< event-image src="/images/4-EventParticipated/event1-1.jpg" alt="Hình ảnh tham gia sự kiện 1" >}}
-  {{< event-image src="/images/4-EventParticipated/event1-2.jpg" alt="Hình ảnh tham gia sự kiện 2" >}}
-  {{< event-image src="/images/4-EventParticipated/event1-3.jpg" alt="Hình ảnh tham gia sự kiện 3" >}}
-</div>
+![Hình ảnh tham gia sự kiện 1](https://criinwa.github.io/aws-learning-journey-fcaj/images/4-EventParticipated/event1-1.jpg)
+
+![Hình ảnh tham gia sự kiện 2](https://criinwa.github.io/aws-learning-journey-fcaj/images/4-EventParticipated/event1-2.jpg)
+
+![Hình ảnh tham gia sự kiện 3](https://criinwa.github.io/aws-learning-journey-fcaj/images/4-EventParticipated/event1-3.jpg)
