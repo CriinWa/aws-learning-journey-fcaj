@@ -16,7 +16,7 @@ During my internship, I participated in five events. Each one provided useful kn
 
 ### [Event 2](4.2-Event2/)
 
-&emsp;**Event Name:** FCAJ – Agentic AI Build Week
+&emsp;**Event Name:** FCAJ – Agentic AI Build Week 
 &emsp;**Date & Time:** 09:00, July 25, 2026
 &emsp;**Location:** 26th Floor, Bitexco Tower, 02 Hai Trieu Street, Sai Gon Ward, Ho Chi Minh City
 &emsp;**Role:** Attendee

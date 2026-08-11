@@ -65,4 +65,8 @@ The speakers showed how faster experimentation and release cycles can create an 
 
 #### Event Photos
 
-![1786419632460](image/_index/1786419632460.jpg)
+<div style="display: flex; gap: 12px; justify-content: space-between; align-items: center; margin: 15px 0;">
+	{{< event-image src="/images/4-EventParticipated/event2-1.jpg" alt="Event 2 photo 1" >}}
+	{{< event-image src="/images/4-EventParticipated/event2-2.jpg" alt="Event 2 photo 2" >}}
+	{{< event-image src="/images/4-EventParticipated/event2-3.jpg" alt="Event 2 photo 3" >}}
+</div>

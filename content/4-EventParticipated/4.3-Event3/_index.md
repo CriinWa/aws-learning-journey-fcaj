@@ -94,3 +94,9 @@ This session gave me a more practical view of the requirements for operating an 
 The Day 2 material provides an important foundation for learning how to build safe, optimized, and scalable Agents.
 
 ## Event Photos
+
+<div style="display: flex; gap: 12px; justify-content: space-between; align-items: center; margin: 15px 0;">
+	{{< event-image src="/images/4-EventParticipated/event3-1.jpg" alt="Event 3 photo 1" >}}
+	{{< event-image src="/images/4-EventParticipated/event3-2.jpg" alt="Event 3 photo 2" >}}
+	{{< event-image src="/images/4-EventParticipated/event3-3.jpg" alt="Event 3 photo 3" >}}
+</div>

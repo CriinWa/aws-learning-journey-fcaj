@@ -96,3 +96,9 @@ Buổi workshop giúp em có cái nhìn thực tế hơn về những yếu tố
 Nội dung của Ngày 2 là nền tảng quan trọng để em tiếp tục tìm hiểu về cách triển khai Agent an toàn, tối ưu và có khả năng mở rộng trong thực tế.
 
 #### Một số hình ảnh khi tham gia sự kiện
+
+<div style="display: flex; gap: 12px; justify-content: space-between; align-items: center; margin: 15px 0;">
+	{{< event-image src="/images/4-EventParticipated/event3-1.jpg" alt="Hình ảnh sự kiện 3 - 1" >}}
+	{{< event-image src="/images/4-EventParticipated/event3-2.jpg" alt="Hình ảnh sự kiện 3 - 2" >}}
+	{{< event-image src="/images/4-EventParticipated/event3-3.jpg" alt="Hình ảnh sự kiện 3 - 3" >}}
+</div>
