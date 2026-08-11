@@ -1,184 +1,146 @@
 ---
-title: "Proposal"
-date: 2026-07-31
+title: "Bản đề xuất"
+date: 2024-01-01
 weight: 2
 chapter: false
 pre: " <b> 2. </b> "
 ---
-# NeonFoodMap – Phần mềm thuyết minh tự động Phố ẩm thực Vĩnh Khánh
 
-## 1. Tổng quan dự án
 
-Dự án xây dựng nền tảng thuyết minh tự động dành cho du khách tại **Phố ẩm thực Vĩnh Khánh, Quận 4, TP. Hồ Chí Minh**. Hệ thống hỗ trợ khám phá các điểm ẩm thực và văn hóa qua nội dung thuyết minh đa phương tiện, được kích hoạt theo vị trí địa lý hoặc mã QR.
+# Vietnamese Legal RAG Chatbot
+## Giải pháp hỏi đáp pháp luật Việt Nam trên AWS
 
-| Tiêu chí              | Giá trị                                                                                                    |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Loại dự án           | Nền tảng thuyết minh tự động và khám phá du lịch số                                               |
-| Khu vực triển khai    | Phố ẩm thực Vĩnh Khánh, Quận 4, TP. Hồ Chí Minh                                                      |
-| Đối tượng sử dụng | Du khách, đối tác kinh doanh địa phương và quản trị viên                                         |
-| Công nghệ ứng dụng  | Frontend trên S3/CloudFront<br />Backend container trên Amazon ECS Fargate, Amazon RDS MySQL và Amazon S3 |
-| Hạ tầng AWS           | VPC triển khai trên hai Availability Zone, ECS Auto Scaling và RDS Multi-AZ                               |
-| Vận hành              | CI/CD với Docker, GitHub Actions, Amazon ECR, CloudWatch và Amazon SNS                                     |
+### 1. Tóm tắt điều hành
 
-### Bối cảnh chung về dự án
+Vietnamese Legal RAG Chatbot là hệ thống cho phép người dùng đặt câu hỏi bằng tiếng Việt về các văn bản pháp luật (Luật, Nghị định, Thông tư...) và nhận câu trả lời có trích dẫn nguồn. Hệ thống sử dụng pipeline RAG: truy xuất các đoạn văn bản luật liên quan từ cơ sở vector, sau đó gửi sang mô hình ngôn ngữ lớn (LLM) trên **Amazon Bedrock** để sinh câu trả lời chính xác, tránh hallucination so với chatbot thuần LLM.
 
-Trình bày giải pháp triển khai hệ thống NeonFoodMap trên nền tảng Amazon Web Services (AWS) theo kiến trúc Cloud-Native, đáp ứng yêu cầu về khả năng mở rộng, tính sẵn sàng cao, bảo mật và tự động hóa phát hành phần mềm. Mục tiêu là xây dựng hạ tầng có thể tái sử dụng, hỗ trợ triển khai lặp lại và chuẩn hóa quy trình vận hành DevOps cho môi trường Production.
+Giải pháp hướng tới quy mô nội bộ (phòng ban pháp chế, trung tâm nghiên cứu, sinh viên luật) với khoảng 10–50 người dùng đồng thời, corpus ban đầu từ dataset HuggingFace NguyenKH/clean_legal_knowledge và khả năng bổ sung văn bản mới qua kênh admin upload.
 
-NeonFoodMap là website bản đồ ẩm thực, cho phép người dùng tìm kiếm, khám phá và đánh giá địa điểm ăn uống theo thời gian thực. Hệ thống tích hợp tìm kiếm điểm địa lý (POI), định vị GPS, hiển thị lộ trình, đánh giá địa điểm và Text-to-Speech để phát nội dung mô tả, từ đó nâng cao trải nghiệm khám phá ẩm thực. Đặc điểm xử lý dữ liệu gần thời gian thực và phục vụ nhiều người dùng đồng thời đòi hỏi hạ tầng linh hoạt, có tính sẵn sàng cao và dễ bảo trì.
+**Demo triển khai:** [http://18.143.187.153:8501/](http://18.143.187.153:8501/) (Streamlit trên EC2, ap-southeast-1)
 
-Giải pháp đề xuất sử dụng Docker và Amazon ECS Fargate; GitHub, GitHub Actions và OpenID Connect (OIDC) để tự động hóa quy trình Build–Test–Deploy; Amazon ECR để lưu trữ Docker image; Amazon RDS trong Private Subnet để bảo vệ dữ liệu; Amazon S3 cho tài nguyên tĩnh và Amazon CloudWatch để giám sát. Kiến trúc này thiết lập một quy trình triển khai thống nhất, an toàn và có thể mở rộng cho các giai đoạn phát triển tiếp theo.
+### 2. Tuyên bố vấn đề
 
-## 2. Mục tiêu
+**Vấn đề hiện tại**
 
-### 2.1 Mục tiêu dự án
+* Tra cứu văn bản pháp luật Việt Nam thường thủ công, tốn thời gian tìm điều/khoản liên quan.
+* Chatbot LLM thuần túy dễ trả lời sai hoặc bịa điều luật không tồn tại.
+* Thiếu hệ thống tập trung cho phép upload, index và quản lý vòng đời văn bản pháp luật mới.
 
-| # | Mục tiêu                                                                                        | Chỉ số đánh giá                                                                   |
-| - | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| 1 | Cung cấp ứng dụng thuyết minh tự động theo vị trí hoặc QR code.                         | Người dùng có thể truy cập POI và phát nội dung đa phương tiện.           |
-| 2 | Quản lý tập trung POI, nội dung âm thanh, hình ảnh, thực đơn và thông tin đối tác. | Dữ liệu được quản lý qua API và giao diện quản trị.                         |
-| 3 | Triển khai hệ thống AWS có khả năng mở rộng, bảo mật và giám sát.                    | ECS Auto Scaling, RDS Multi-AZ, private subnet, CloudWatch và SNS được cấu hình. |
-| 4 | Tự động hóa quy trình phát hành.                                                           | Image được build, đẩy lên ECR và triển khai ECS qua GitHub Actions.            |
+**Giải pháp**
 
-### 2.2 Giá trị mang lại
+Xây dựng chatbot RAG trên AWS với ba luồng chính:
 
-- **Nâng cao trải nghiệm du khách:** Cung cấp nội dung thuyết minh linh hoạt, đa phương tiện và dễ tiếp cận.
-- **Hỗ trợ hoạt động địa phương:** Tạo kênh số để đối tác giới thiệu thực đơn, ưu đãi và thông tin dịch vụ.
-- **Vận hành tin cậy:** Tách biệt các lớp ứng dụng, dữ liệu và mạng; hỗ trợ giám sát và cảnh báo tập trung.
-- **Sẵn sàng mở rộng:** Kiến trúc container và hạ tầng đa Availability Zone có thể đáp ứng lượng truy cập tăng lên.
+1. **Luồng nạp dữ liệu (Ingestion):** Admin upload PDF/TXT lên **Amazon S3** → sự kiện kích hoạt **Amazon SQS** → **AWS Lambda** chunking, gọi **Amazon Bedrock Titan Embeddings**, lưu vector vào **Amazon RDS PostgreSQL (pgvector)**.
+2. **Luồng hỏi đáp (RAG Query):** Người dùng gửi câu hỏi qua giao diện **Chainlit/FastAPI** trên **Amazon EC2** (sau **Application Load Balancer**) → embed câu hỏi → tìm kiếm vector trên RDS → ghép prompt → **Amazon Bedrock LLM** (Claude 3 / Llama 3) sinh câu trả lời → stream về UI.
+3. **Luồng vận hành (Observability):** Log/metric lên **Amazon CloudWatch** → **Amazon SNS** gửi email cảnh báo khi lỗi hoặc chi phí vượt ngưỡng.
 
-## 3. Vấn đề giải quyết
+Xác thực người dùng qua **Amazon Cognito** (nhóm users/editors/admins). Lịch sử hội thoại lưu trên **Amazon DynamoDB** với TTL và GSI phục vụ admin.
 
-**Vấn đề 1 — Chi phí nhân lực cao:** Việc thuyết minh, hướng dẫn và cập nhật nội dung theo cách thủ công cần nhiều nhân sự, khó duy trì liên tục và khó đáp ứng nhu cầu đa ngôn ngữ của du khách. Các hộ kinh doanh nhỏ cũng khó đầu tư riêng cho nhân sự giới thiệu, truyền thông và hỗ trợ khách hàng.
+**Lợi ích**
 
-**Vấn đề 2 — Chi phí và độ phức tạp của hạ tầng:** Một hệ thống phục vụ nhiều người dùng cần có khả năng mở rộng, lưu trữ media, sao lưu dữ liệu, giám sát và bảo mật. Nếu triển khai không phù hợp, chi phí vận hành hạ tầng có thể tăng cao hoặc hệ thống không đáp ứng tốt trong thời điểm có lượng truy cập lớn.
+* Câu trả lời có căn cứ từ văn bản luật thực tế, kèm metadata trích dẫn.
+* Pipeline ingestion tự động khi admin upload văn bản mới.
+* Kiến trúc cloud-native, có thể mở rộng corpus và số người dùng.
+* Tận dụng managed services AWS, giảm vận hành hạ tầng so với self-host toàn bộ.
 
-**Vấn đề 3 — Quản lý nội dung phân tán:** Thông tin về POI, bài thuyết minh, hình ảnh, âm thanh, thực đơn và ưu đãi thường được quản lý rời rạc. Điều này gây khó khăn cho việc cập nhật đồng bộ, kiểm soát chất lượng nội dung và duy trì trải nghiệm nhất quán cho du khách.
+### 3. Kiến trúc giải pháp
 
-### 3.1 Phạm vi chức năng
+![Kiến trúc Vietnamese Legal RAG Chatbot](/images/2-Proposal/legal_chatbot_architecture.png)
 
-- Hiển thị bản đồ và danh sách POI tại Phố ẩm thực Vĩnh Khánh.
-- Kích hoạt bài thuyết minh bằng geofencing hoặc quét QR code; hỗ trợ phát âm thanh và hiển thị hình ảnh liên quan.
-- Hỗ trợ nội dung đa ngôn ngữ, lưu lịch sử trải nghiệm và đồng bộ dữ liệu khi có kết nối.
-- Cung cấp giao diện cho đối tác cập nhật thực đơn, ưu đãi và theo dõi thông tin cơ bản về lượt tiếp cận.
-- Cung cấp giao diện quản trị để quản lý POI, nội dung, người dùng và theo dõi tình trạng hệ thống.
+**Dịch vụ AWS sử dụng**
 
-## 4. Kiến trúc triển khai trên AWS
+| Dịch vụ | Vai trò |
+| --- | --- |
+| **Amazon EC2** | Host ứng dụng FastAPI + Chainlit trong private subnet |
+| **Application Load Balancer (ALB)** | Điểm vào HTTPS, phân tải tới EC2/ECS |
+| **Amazon RDS (PostgreSQL + pgvector)** | Vector database, lưu chunk văn bản luật và embedding |
+| **Amazon Bedrock** | Titan Embeddings + LLM (Claude 3, Llama 3) |
+| **Amazon S3** | Lưu văn bản gốc, manifest upload, vector store artefact |
+| **AWS Lambda** | Xử lý ingestion: đọc S3, chunk, embed, ghi RDS |
+| **Amazon SQS + DLQ** | Hàng đợi ingestion, retry và dead-letter |
+| **Amazon DynamoDB** | Lưu lịch sử chat, conversation metadata |
+| **Amazon Cognito** | Xác thực JWT, RBAC users/editors/admins |
+| **Amazon VPC** | Public/private/isolated subnet, security group |
+| **VPC Endpoints** | Truy cập S3, Bedrock, DynamoDB không qua Internet |
+| **Amazon CloudWatch + SNS** | Logging, metric, alarm, thông báo email |
+| **AWS CloudFormation** | IaC deploy foundation stack (Cognito, DynamoDB, S3, SQS) |
+| **AWS Secrets Manager** | Quản lý RDS password, API key (production) |
 
-Hệ thống được triển khai trên **Amazon Web Services (AWS)** theo kiến trúc Multi-tier Architecture và định hướng theo **AWS Well-Architected Framework**. Toàn bộ hạ tầng chạy trong **Amazon VPC (10.0.0.0/16)** tại Region **ap-southeast-1 (Singapore)**, trải rộng trên hai Availability Zone để tăng khả năng sẵn sàng và chịu lỗi.
+**Thiết kế thành phần**
 
-Hệ thống phân phối Frontend qua **Amazon S3** và  **CloudFront** , điều hướng API request qua **Application Load Balancer** tới backend **Amazon ECS Fargate** và lưu trữ trên  **Amazon RDS MySQL** . **GitHub Actions, ECR, CloudWatch** và **SNS** thực hiện CI/CD, giám sát và cảnh báo tự động
+* **Frontend/Chat UI:** Chainlit (demo/UAT) hoặc web app tích hợp Cognito (production).
+* **API Layer:** FastAPI với **/api/chat**, **/api/admin/***, JWT middleware.
+* **RAG Core:** QAService — retriever pgvector, prompt builder, Bedrock generator.
+* **Ingestion Worker:** Lambda handler đọc S3/SQS, hỗ trợ PDF/TXT, partial batch failure.
+* **Admin:** Presigned S3 upload, quản lý user Cognito, soft delete văn bản.
 
-### 4.1 Sơ đồ kiến trúc
+### 4. Triển khai kỹ thuật
 
-#### Kiến trúc tổng thể
+**Các giai đoạn triển khai**
 
-{{< event-image src="images/2-Proposal/platform_architecture.jpg" alt="Kiến trúc tổng thể nền tảng trên AWS" >}}
+| Giai đoạn | Nội dung | Thời gian |
+| --- | --- | --- |
+| 1. Nghiên cứu & prototype local | RAG pipeline, SQLite vector store, FastAPI | Tuần 4–5 |
+| 2. Tích hợp AWS cơ bản | S3 sync, Docker, Chainlit | Tuần 6–7 |
+| 3. Production data layer | RDS pgvector, Bedrock | Tuần 7 |
+| 4. Auth & foundation IaC | Cognito, DynamoDB, CloudFormation stack | Tuần 8 |
+| 5. Ingestion serverless | S3 → SQS → Lambda → RDS | Tuần 8 |
+| 6. Tối ưu & báo cáo | Benchmark, CloudWatch, hoàn thiện báo cáo | Tuần 8 |
 
-Kiến trúc triển khai được xây dựng trên hai Availability Zone để cải thiện tính sẵn sàng:
+**Yêu cầu kỹ thuật**
 
-- **Phân phối frontend:** Nội dung tĩnh được lưu trên **Amazon S3 Static Website** và phân phối qua **Amazon CloudFront** để tăng tốc độ truy cập cho người dùng.
-- **Xử lý API:** CloudFront chuyển các yêu cầu API đến ALB. ALB định tuyến lưu lượng đến các ECS Fargate task trong private subnet và Auto Scaling Group phân bổ trên hai Availability Zone.
-- **Cơ sở dữ liệu:** **Amazon RDS MySQL** triển khai Multi-AZ, gồm primary database và standby database đồng bộ nhằm nâng cao khả năng chịu lỗi.
-- **CI/CD:** Đẩy mã nguồn lên GitHub. **GitHub Actions** dùng OIDC để xác thực với **AWS STS**, build container image và push lên **Amazon ECR**; ECS sau đó pull image và triển khai phiên bản mới.
-- **Bảo mật và hạ tầng:** **AWS IAM** quản lý quyền truy cập, **AWS Secrets Manager** lưu trữ thông tin nhạy cảm, và **AWS CloudFormation** chuẩn hóa việc cung cấp và thay đổi hạ tầng.
-- **Quan sát hệ thống:** **Amazon CloudWatch** thu thập log và metric; log có thể được lưu trữ lâu dài trên S3. **Amazon SNS** gửi cảnh báo đến email.
+* Python 3.11+, FastAPI, Sentence-Transformers / Bedrock Embeddings.
+* PostgreSQL 15+ với extension pgvector.
+* Docker container cho EC2/ECS deployment.
+* IAM least privilege; không commit credential vào git.
+* Region đề xuất: **ap-southeast-1** (Singapore).
 
-#### Kiến trúc kết nối dịch vụ
+**Liên kết triển khai**
 
-{{< event-image src="images/2-Proposal/edge_architecture.jpg" alt="Kiến trúc biên và kết nối dịch vụ trên AWS" >}}
+| Loại | Liên kết |
+| --- | --- |
+| **Repository** | [github.com/KhanhKoy/vietnamese-legal-llmops](https://github.com/KhanhKoy/vietnamese-legal-llmops) |
+| **Production (demo)** | [http://18.143.187.153:8501/](http://18.143.187.153:8501/) |
 
-- Người dùng truy cập ứng dụng qua **Internet Gateway** và **Application Load Balancer (ALB)**.
-- Frontend và backend được đóng gói thành container, vận hành bằng **Amazon ECS Fargate** trong ECS Cluster.
-- **AWS Cloud Map** được sử dụng để **quản lý Service Discovery** giữa các Container trong ECS Cluster, giúp các dịch vụ giao tiếp nội bộ mà không cần phải cập nhật lại IP khi cập nhật Task Revision mới.
+Mã nguồn gồm src/rag_core/, src/api/, infra/foundation.yaml, deploy/Dockerfile. Môi trường demo chạy trên EC2 (ap-southeast-1) với giao diện Streamlit, kết nối RDS pgvector và Bedrock.
 
-### 4.2 Các thành phần kiến trúc
+### 5. Lộ trình & Mốc triển khai
 
-| Tầng                  | Dịch vụ                                    | Vai trò                                                                                      |
-| ---------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Edge                   | Amazon CloudFront                            | Phân phối nội dung từ S3 và chuyển các yêu cầu API đến Application Load Balancer. |
-| Frontend               | Amazon S3 Static Website                     | Lưu trữ và cung cấp tài nguyên của giao diện ứng dụng.                              |
-| Compute                | Application Load Balancer                    | Nhận yêu cầu API, thực hiện health check và phân phối truy cập đến ECS service.    |
-| Compute                | Amazon ECS Fargate                           | Chạy các container backend; mở rộng theo nhu cầu với Auto Scaling.                     |
-| Service discovery      | AWS Cloud Map và Amazon Route 53            | Hỗ trợ dịch vụ nội bộ giao giữa các thành phần trong ECS Cluster.                   |
-| CI/CD                  | GitHub Actions, AWS STS và Amazon ECR       | Xác thực OIDC, build container image, lưu image và triển khai phiên bản mới cho ECS.  |
-| Data                   | Amazon RDS MySQL                             | Lưu trữ dữ liệu nghiệp vụ.                                                              |
-| Mạng                  | Amazon VPC, Internet Gateway và NAT Gateway | Tách public/private subnet; cung cấp kết nối Internet.                                    |
-| Security               | AWS IAM và AWS Secrets Manager              | Phân quyền IAM role và bảo vệ thông tin.                                                |
-| Infrastructure as Code | AWS CloudFormation                           | Chuẩn hóa việc khởi tạo và thay đổi hạ tầng.                                        |
-| Observability          | Amazon CloudWatch, Amazon SNS và S3 Logs    | Thu thập log, metric, tạo alert và lưu trữ log.                                         |
+* **Tuần 1–2 (22/06 – 03/07):** AWS fundamentals, S3/IAM.
+* **Tuần 3–4 (06/07 – 17/07):** VPC workshop, nghiên cứu RAG và dataset pháp luật.
+* **Tuần 5–6 (20/07 – 31/07):** Prototype local, FastAPI, Docker, Chainlit.
+* **Tuần 7–8 (03/08 – 14/08):** Bedrock, RDS pgvector, Cognito, Lambda ingestion, benchmark, báo cáo.
+* **Sau thực tập:** HA deployment, WAF, frontend admin, chuyển toàn bộ embedding sang Bedrock Titan.
 
-### 4.3 AWS Well-Architected Framework
+### 6. Ước tính ngân sách (dev/staging, ap-southeast-1)
 
-| Trụ cột              | Giải pháp áp dụng                                                           |
-| ---------------------- | ------------------------------------------------------------------------------- |
-| Operational Excellence | GitHub Actions CI/CD, CloudFormation, CloudWatch.                               |
-| Security               | IAM Least Privilege, Secrets Manager, KMS, Private Subnets                      |
-| Reliability            | Application Load Balancer, ECS Auto Scaling, RDS Multi-AZ, VPC Endpoint for S3. |
-| Performance Efficiency | CloudFront, ECS Fargate AutoScaling, RDS Optimization.                         |
-| Cost Optimization      | ECS Fargate Auto Scaling, S3 Lifecycle.                                         |
-| Sustainability         | Scale theo nhu cầu, tắt môi trường dev ngoài giờ                        |
+| Hạng mục | Chi phí ước tính/tháng |
+| --- | --- |
+| EC2 t3a.small | ~14 USD |
+| RDS db.t3.micro PostgreSQL | ~15 USD |
+| Amazon Bedrock (embed + LLM, ~10K query) | ~5–20 USD |
+| S3 Standard (~10 GB) | ~0.25 USD |
+| DynamoDB on-demand | ~1 USD |
+| Lambda + SQS | ~1 USD |
+| Cognito | Free tier (< 50K MAU) |
+| CloudWatch + SNS | ~2 USD |
+| **Tổng ước tính** | **~40–55 USD/tháng** |
 
-## 5. Timeline
+*Ghi chú:* Chi phí production với ALB, 2 EC2, RDS Multi-AZ sẽ cao hơn. Có thể giảm bằng ECS Fargate Spot, RDS Reserved Instance, hoặc tắt instance ngoài giờ lab.
 
-| Giai đoạn                               | Thời gian theo Worklog | Nội dung triển khai                                                                                                                                                                                                        |
-| ----------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Nền tảng và thiết kế              | Tuần 1–3              | Thiết lập tài khoản AWS, IAM, Budgets và kiến thức mạng; nghiên cứu EC2, S3, RDS, CloudWatch, Auto Scaling, Backup; hoàn thiện kiến trúc dự án và lựa chọn dịch vụ AWS.                                 |
-| 2. Phát triển và chuẩn bị hạ tầng  | Tuần 4                 | Lập kế hoạch Agile; xây dựng backend cơ bản, thiết kế cơ sở dữ liệu RDS MySQL, chuẩn bị Dockerfile, CloudFormation, IAM role/policy và cấu hình bảo mật cần thiết.                                     |
-| 3. Container hóa và triển khai staging | Tuần 5–6              | Hoàn thiện frontend, backend và API; build image, đẩy image lên ECR; triển khai ECS Fargate, ALB, RDS, Auto Scaling; cấu hình CloudWatch, AWS Budgets, SNS và kiểm thử trên môi trường staging.              |
-| 4. Tự động hóa triển khai            | Tuần 7                 | Rà soát Dockerfile/Docker Compose; thiết lập GitHub Actions với OIDC, tự động build, push image lên ECR, cập nhật ECS task definition và theo dõi ECS rollout.                                                  |
-| 5. Phân phối nội dung và hoàn thiện | Tuần 7–8              | Triển khai CloudFront cho frontend tĩnh, kiểm tra DNS và khả năng truy cập; rà soát chi phí, bảo mật, hệ thống cảnh báo; kiểm thử tổng thể, hoàn thiện tài liệu, sơ đồ kiến trúc và báo cáo. |
+### 7. Đánh giá rủi ro
 
-## 6. Ước tính ngân sách
+| Rủi ro | Mức ảnh hưởng | Giảm thiểu |
+| --- | --- | --- |
+| LLM hallucination | Cao | RAG bắt buộc trích dẫn context; prompt từ chối khi thiếu dữ liệu |
+| Chi phí Bedrock vượt ngân sách | Trung bình | CloudWatch alarm, giới hạn token, cache câu hỏi phổ biến |
+| Corpus pháp luật lỗi thời | Cao | Pipeline upload admin, versioning S3, soft delete |
+| Latency cao khi corpus lớn | Trung bình | pgvector index (IVFFlat/HNSW), RDS Proxy, benchmark định kỳ |
+| Lộ credential | Cao | Secrets Manager, IAM role cho EC2/Lambda, không hard-code key |
 
-### 6.1 Chi phí sử dụng và chi phí tối đa dự kiến
+### 8. Kết quả kỳ vọng
 
-| Dịch vụ                          | Cấu hình theo kiến trúc hiện tại                                                                                                 |                                                   Chi phí/tháng | Chi phí ước tính tối đa/tháng |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------: | -----------------------------------: |
-| Amazon ECS (Fargate)               | Chạy backend container trên ECS; Production dùng 2 tasks trên 2 AZ với Auto Scaling, ví dụ 0,5 vCPU và 1 GB RAM cho mỗi task. |                                                  $9,86 | ~$20–35 |                                      |
-| Amazon RDS MySQL                   | Production dùng Multi-AZ: Primary ở AZ A và Standby ở AZ B.                                                                        |                                                     $11,78 | ~$50 |                                      |
-| NAT Gateway, ALB và Amazon VPC    | Hai NAT Gateway và ALB cho Production; dashboard hiện gộp một phần chi phí vào**EC2 – Other** và **VPC**.         |                                                 $32,80 | ~$82–84 |                                      |
-| Amazon CloudFront                  | Phân phối static web từ S3 và định tuyến API; giả định khoảng 100 GB truyền dữ liệu.                                     | $0.00 (Free Tier cho 1 TB) |           $0.00 (Free Tier cho 1 TB) |                                      |
-| Amazon S3                          | Lưu static web, media và logs; giả định khoảng 50 GB.                                                                            |                          ~$2 |                                ~$2 |                                      |
-| Amazon CloudWatch và SNS          | Flow Logs, container logs, metrics, alarms và gửi email cảnh báo.                                                                  |                                                    $5,61 | ~$5–6 |                                      |
-| AWS Secrets Manager và Amazon ECR | Lưu secrets và container images.                                                                                                     |                          ~$2 |                                ~$3 |                                      |
-| **Tổng chi phí/tháng**    |                                                                                                                                        |                           **$64,05** | **~$166–184** |                                      |
-
-### 6.2 Chiến lược tối ưu chi phí
-
-- Cấu hình **AWS Budgets** và cảnh báo qua SNS ở các ngưỡng 50%, 80% và 100% ngân sách tháng.
-- Theo dõi chi phí NAT Gateway, ECS Fargate, RDS và CloudWatch là các nhóm chi phí chính.
-- Chỉ duy trì số lượng ECS task cần thiết; sử dụng Auto Scaling để tránh cấp phát tài nguyên nhàn rỗi.
-- Xóa hoặc dừng các tài nguyên không còn sử dụng trong môi trường staging sau khi hoàn tất kiểm thử.
-- Sử dụng CloudFront cache cho static web và media để giảm lưu lượng đến origin; cân nhắc S3 Lifecycle khi dung lượng log hoặc media tăng lên.
-
-## 7. Đánh giá rủi ro
-
-### 7.1 Ma trận rủi ro
-
-| Rủi ro                                             | Khả năng  | Ảnh hưởng |
-| --------------------------------------------------- | ----------- | ------------ |
-| Chi phí AWS vượt dự báo                        | Trung bình | Trung bình  |
-| ECS task hoặc container gặp lỗi                  | Trung bình | Trung bình  |
-| Sự cố cơ sở dữ liệu                           | Thấp       | Cao          |
-| Lộ thông tin nhạy cảm                           | Thấp       | Rất cao     |
-| Lưu lượng tăng đột biến                      | Trung bình | Trung bình  |
-| Log hoặc cảnh báo không đầy đủ              | Trung bình | Trung bình  |
-| Lỗi trong quá trình triển khai phiên bản mới | Trung bình | Trung bình  |
-
-### 7.2 Kế hoạch dự phòng và ứng phó
-
-- Xử lý cảnh báo chi phí ngay khi chạm ngưỡng ngân sách; xác định dịch vụ phát sinh và dừng hoặc điều chỉnh tài nguyên không cần thiết.
-- Khi API hoặc container lỗi, kiểm tra CloudWatch Logs, trạng thái ALB health check và ECS task definition trước khi rollback hoặc triển khai bản sửa.
-- Khi có sự cố dữ liệu, ưu tiên bảo vệ dữ liệu, đánh giá ảnh hưởng và thực hiện khôi phục theo quy trình backup/restore đã kiểm thử.
-- Khi phát hiện dấu hiệu lộ thông tin xác thực, thu hồi hoặc xoay vòng secret, kiểm tra IAM permissions và rà soát lịch sử triển khai.
-
-## 8. Kết quả kỳ vọng
-
-* **Cải tiến kỹ thuật:** Số hóa việc thuyết minh và quản lý POI, thay thế quy trình cung cấp thông tin thủ công bằng nền tảng đa phương tiện có thể giám sát, mở rộng và triển khai tự động trên AWS.
-* **Giá trị dài hạn:** Hình thành nền tảng nội dung và dữ liệu có thể tái sử dụng cho các khu vực du lịch khác; đồng thời tạo cơ sở để mở rộng phân tích hành vi người dùng, nội dung đa ngôn ngữ và hợp tác với các hộ kinh doanh địa phương trong tương lai.
-
-### Tài liệu tham khảo
-
-- [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
-- [The First Cloud Journey](https://cloudjourney.awsstudygroup.com/)
-- [AWS Documentation](https://docs.aws.amazon.com/)
+* Prototype chatbot trả lời câu hỏi pháp luật tiếng Việt với nguồn trích dẫn.
+* Pipeline ingestion tự động cho văn bản PDF/TXT mới.
+* Nền tảng mở rộng cho nghiên cứu NLP pháp luật, đánh giá RAG metrics (Recall@k, MRR).
+* Kiến thức thực hành AWS: EC2, S3, RDS, Lambda, Bedrock, Cognito, DynamoDB, VPC, CloudFormation.

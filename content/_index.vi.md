@@ -28,6 +28,8 @@ chapter: false
 
 ![Ảnh đại diện của bạn](https://CriinWa.github.io/aws-learning-journey-fcaj/images/avatar.jpg)
 
+
+
 ### Nội dung báo cáo
 
 1. [Worklog](1-Worklog/)

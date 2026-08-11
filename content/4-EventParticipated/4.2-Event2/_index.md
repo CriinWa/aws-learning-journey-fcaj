@@ -1,5 +1,5 @@
 ---
-title: "FCAJ - Agentic AI Build Week"
+title: "Event 2"
 date: 2026-07-25
 weight: 3
 chapter: false

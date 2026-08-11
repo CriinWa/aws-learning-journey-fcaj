@@ -5,44 +5,48 @@ weight: 1
 chapter: false
 pre: " <b> 3.1. </b> "
 ---
+# REIMAGINING BINARY ASSET STORAGE IN GAMES WITH LORE
 
-# KIRO POWERS
+## The pain point in game development
 
-When vibe coding, FCAJ members often face these issues:
+During game development, teams often have to commit hundreds of large binary assets every day. Traditional version control systems such as Git were not built for this workload. When a binary file is modified, the system stores the entire file as a new version, regardless of how many bytes changed. This creates massive storage overhead. A 50-person studio can accumulate petabytes over a production cycle, which drives up monthly costs quickly.
 
-- Every new project needs to be configured again from the beginning.
-- Teams find it difficult to keep the same setup, which can lead to inconsistent code.
-- Loading every tool at once causes context bloat, wastes tokens, and reduces the AI's focus.
+To solve this problem, Epic Games created Lore, an open-source version control system with a very different approach.
 
-Kiro Powers was created to solve this problem. Instead of manually configuring every new project, we can package tools, instructions, and automation into one unit and share it with the whole team. After one installation, everyone uses the same setup.
+## How Lore is different
 
-A Power is a collection of components:
+Instead of treating binary files as opaque blobs, Lore breaks each file into variable-sized fragments identified by cryptographic hashes.
 
-- A `POWER.md` file containing documentation and activation keywords.
-- MCP servers that provide execution tools.
-- Steering files that define workflows and standards.
-- Hooks that automate actions based on events.
+- If you edit a 200MB texture file, Lore stores only the fragments that contain changed bytes instead of duplicating the whole file.
+- The storage model changes from linear to sub-linear. As a project grows, fragment duplication becomes more common, which saves storage.
+- If the same fragment appears in 100 different textures, it is stored only once through deduplication.
+- Branching across tens of thousands of unchanged assets adds almost no storage overhead, so branching is close to free.
 
-The important difference is that a Power is **not preloaded**. It activates only when a prompt contains the right keyword. This gives an agent only the knowledge and tools it needs, avoiding context bloat.
+Even better, end users such as artists and developers do not need to change their habits. They still use the familiar workflow of check out, edit, and commit, while Lore handles fragmentation behind the scenes.
 
-Anyone can create a Power with Build a Power, or import one from GitHub or a local folder through Add Custom Power. After it is complete, the team can push it to a Git repository and install the same setup together.
+## Lore architecture on AWS
 
-## Quick example: Zapier Power
+To build Lore at scale, AWS and Epic designed a complete reference architecture. Data flows through the following components:
 
-After installing the “Zapier” Power in the Kiro Powers panel, an agent can connect to and automate thousands of external applications.
+- Edge pods (Amazon EC2): Run on C8gd instances. Clients connect through QUIC, a UDP-based protocol that improves throughput and packet-loss handling. Each pod has local NVMe storage for cache.
+- Write tier (Amazon ECS): Handles data durability. When push traffic arrives, the edge pods send new fragments to the write tier, which deduplicates them and stores them in S3.
+- Durable storage (Amazon S3): Stores all unique fragments. These fragments are immutable, written once and read many times.
+- Metadata and locks (Amazon DynamoDB): Handles file metadata, branch pointers, and locks. DynamoDB provides millisecond-level reads, which is critical when many people are competing for exclusive file locks.
+- Service discovery (AWS Cloud Map): Helps edge pods find the write tier through internal DNS. When infrastructure changes, DNS updates in a few seconds without disrupting the team.
 
-This Power includes `POWER.md` keywords such as `zapier`, `automation`, `webhook`, `youtube`, and `discord`, together with the Zapier MCP and steering files for data-integration workflows. A prompt such as “Get the latest video from YouTube channel Y and send it to channel X...” or a Zapier workflow link can activate the Power. The agent then gets connection context, maps data, creates the message format, and automates the flow instead of requiring manual code.
+## Real-world value and personal take
 
-Kiro Powers is more than a utility. It is a way to turn expertise into reusable modules that can be shared with a team.
+After reading this article, I realized that Lore is not just a storage tool. It changes how game teams think:
 
-{{< event-image src="images/3-Blog/Blog1.jpg" alt="Blog 1" >}}
+- Free branching lets teams experiment with new features without worrying about storage cost.
+- Studios with multiple projects can share fragments across repositories and build large shared asset libraries.
 
-## References
+As someone learning AWS, Lore is a perfect case study in choosing the right service for the right job: S3 for low-cost durable storage, DynamoDB for fast metadata reads and writes, and EC2 NVMe for caching.
 
-1. [Kiro Powers documentation](https://kiro.dev/docs/powers/)
-2. [Introducing Kiro Powers](https://kiro.dev/blog/introducing-powers/)
-3. [Kiro Powers introduction video](https://youtu.be/kEOmuVyqfMU?si=p9iFGMNMUK9rbYAp)
+## Conclusion and deployment
 
-## Link Post
+Today, Lore's source code is available on GitHub, and AWS has also published an open-source Terraform module (terraform-aws-lore) to automate the full setup, from networking and compute to storage and authentication.
 
-[AWS Study Group post](https://www.facebook.com/groups/awsstudygroupfcj/permalink/2232309990867294/)
+In the future, this architecture could expand to multi-region deployments and deeper integration with the Unreal Engine ecosystem. If you work in DevOps for a game studio, this is definitely a solution worth paying attention to.
+
+**Reference:** https://aws.amazon.com/vi/blogs/gametech/how-lore-rethinks-binary-asset-storage-on-aws/
