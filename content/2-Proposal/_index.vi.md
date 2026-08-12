@@ -5,9 +5,8 @@ weight: 2
 chapter: false
 pre: " <b> 2. </b> "
 ---
-
-
 # Vietnamese Legal RAG Chatbot
+
 ## Giải pháp hỏi đáp pháp luật Việt Nam trên AWS
 
 ### 1. Tóm tắt điều hành
@@ -18,7 +17,7 @@ Giải pháp hướng tới quy mô nội bộ (phòng ban pháp chế, trung t�
 
 **Demo triển khai:** [http://18.143.187.153:8501/](http://18.143.187.153:8501/) (Streamlit trên EC2, ap-southeast-1)
 
-### 2. Tuyên bố vấn đề
+### 2. Vấn đề
 
 **Vấn đề hiện tại**
 
@@ -45,26 +44,26 @@ Xác thực người dùng qua **Amazon Cognito** (nhóm users/editors/admins). 
 
 ### 3. Kiến trúc giải pháp
 
-![Kiến trúc Vietnamese Legal RAG Chatbot](/images/2-Proposal/legal_chatbot_architecture.png)
+![1786494629493](image/_index.vi/1786494629493.png)
 
 **Dịch vụ AWS sử dụng**
 
-| Dịch vụ | Vai trò |
-| --- | --- |
-| **Amazon EC2** | Host ứng dụng FastAPI + Chainlit trong private subnet |
-| **Application Load Balancer (ALB)** | Điểm vào HTTPS, phân tải tới EC2/ECS |
-| **Amazon RDS (PostgreSQL + pgvector)** | Vector database, lưu chunk văn bản luật và embedding |
-| **Amazon Bedrock** | Titan Embeddings + LLM (Claude 3, Llama 3) |
-| **Amazon S3** | Lưu văn bản gốc, manifest upload, vector store artefact |
-| **AWS Lambda** | Xử lý ingestion: đọc S3, chunk, embed, ghi RDS |
-| **Amazon SQS + DLQ** | Hàng đợi ingestion, retry và dead-letter |
-| **Amazon DynamoDB** | Lưu lịch sử chat, conversation metadata |
-| **Amazon Cognito** | Xác thực JWT, RBAC users/editors/admins |
-| **Amazon VPC** | Public/private/isolated subnet, security group |
-| **VPC Endpoints** | Truy cập S3, Bedrock, DynamoDB không qua Internet |
-| **Amazon CloudWatch + SNS** | Logging, metric, alarm, thông báo email |
-| **AWS CloudFormation** | IaC deploy foundation stack (Cognito, DynamoDB, S3, SQS) |
-| **AWS Secrets Manager** | Quản lý RDS password, API key (production) |
+| Dịch vụ                                    | Vai trò                                                    |
+| -------------------------------------------- | ----------------------------------------------------------- |
+| **Amazon EC2**                         | Host ứng dụng FastAPI + Chainlit trong private subnet     |
+| **Application Load Balancer (ALB)**    | Điểm vào HTTPS, phân tải tới EC2/ECS                  |
+| **Amazon RDS (PostgreSQL + pgvector)** | Vector database, lưu chunk văn bản luật và embedding   |
+| **Amazon Bedrock**                     | Titan Embeddings + LLM (Claude 3, Llama 3)                  |
+| **Amazon S3**                          | Lưu văn bản gốc, manifest upload, vector store artefact |
+| **AWS Lambda**                         | Xử lý ingestion: đọc S3, chunk, embed, ghi RDS          |
+| **Amazon SQS + DLQ**                   | Hàng đợi ingestion, retry và dead-letter                |
+| **Amazon DynamoDB**                    | Lưu lịch sử chat, conversation metadata                  |
+| **Amazon Cognito**                     | Xác thực JWT, RBAC users/editors/admins                   |
+| **Amazon VPC**                         | Public/private/isolated subnet, security group              |
+| **VPC Endpoints**                      | Truy cập S3, Bedrock, DynamoDB không qua Internet         |
+| **Amazon CloudWatch + SNS**            | Logging, metric, alarm, thông báo email                   |
+| **AWS CloudFormation**                 | IaC deploy foundation stack (Cognito, DynamoDB, S3, SQS)    |
+| **AWS Secrets Manager**                | Quản lý RDS password, API key (production)                |
 
 **Thiết kế thành phần**
 
@@ -78,14 +77,14 @@ Xác thực người dùng qua **Amazon Cognito** (nhóm users/editors/admins). 
 
 **Các giai đoạn triển khai**
 
-| Giai đoạn | Nội dung | Thời gian |
-| --- | --- | --- |
-| 1. Nghiên cứu & prototype local | RAG pipeline, SQLite vector store, FastAPI | Tuần 4–5 |
-| 2. Tích hợp AWS cơ bản | S3 sync, Docker, Chainlit | Tuần 6–7 |
-| 3. Production data layer | RDS pgvector, Bedrock | Tuần 7 |
-| 4. Auth & foundation IaC | Cognito, DynamoDB, CloudFormation stack | Tuần 8 |
-| 5. Ingestion serverless | S3 → SQS → Lambda → RDS | Tuần 8 |
-| 6. Tối ưu & báo cáo | Benchmark, CloudWatch, hoàn thiện báo cáo | Tuần 8 |
+| Giai đoạn                       | Nội dung                                     | Thời gian |
+| --------------------------------- | --------------------------------------------- | ---------- |
+| 1. Nghiên cứu & prototype local | RAG pipeline, SQLite vector store, FastAPI    | Tuần 4–5 |
+| 2. Tích hợp AWS cơ bản        | S3 sync, Docker, Chainlit                     | Tuần 6–7 |
+| 3. Production data layer          | RDS pgvector, Bedrock                         | Tuần 7    |
+| 4. Auth & foundation IaC          | Cognito, DynamoDB, CloudFormation stack       | Tuần 8    |
+| 5. Ingestion serverless           | S3 → SQS → Lambda → RDS                    | Tuần 8    |
+| 6. Tối ưu & báo cáo           | Benchmark, CloudWatch, hoàn thiện báo cáo | Tuần 8    |
 
 **Yêu cầu kỹ thuật**
 
@@ -97,10 +96,10 @@ Xác thực người dùng qua **Amazon Cognito** (nhóm users/editors/admins). 
 
 **Liên kết triển khai**
 
-| Loại | Liên kết |
-| --- | --- |
-| **Repository** | [github.com/KhanhKoy/vietnamese-legal-llmops](https://github.com/KhanhKoy/vietnamese-legal-llmops) |
-| **Production (demo)** | [http://18.143.187.153:8501/](http://18.143.187.153:8501/) |
+| Loại                       | Liên kết                                                                                        |
+| --------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Repository**        | [github.com/KhanhKoy/vietnamese-legal-llmops](https://github.com/KhanhKoy/vietnamese-legal-llmops) |
+| **Production (demo)** | [http://18.143.187.153:8501/](http://18.143.187.153:8501/)                                         |
 
 Mã nguồn gồm src/rag_core/, src/api/, infra/foundation.yaml, deploy/Dockerfile. Môi trường demo chạy trên EC2 (ap-southeast-1) với giao diện Streamlit, kết nối RDS pgvector và Bedrock.
 
@@ -114,29 +113,29 @@ Mã nguồn gồm src/rag_core/, src/api/, infra/foundation.yaml, deploy/Dockerf
 
 ### 6. Ước tính ngân sách (dev/staging, ap-southeast-1)
 
-| Hạng mục | Chi phí ước tính/tháng |
-| --- | --- |
-| EC2 t3a.small | ~14 USD |
-| RDS db.t3.micro PostgreSQL | ~15 USD |
-| Amazon Bedrock (embed + LLM, ~10K query) | ~5–20 USD |
-| S3 Standard (~10 GB) | ~0.25 USD |
-| DynamoDB on-demand | ~1 USD |
-| Lambda + SQS | ~1 USD |
-| Cognito | Free tier (< 50K MAU) |
-| CloudWatch + SNS | ~2 USD |
-| **Tổng ước tính** | **~40–55 USD/tháng** |
+| Hạng mục                               | Chi phí ước tính/tháng  |
+| ---------------------------------------- | ---------------------------- |
+| EC2 t3a.small                            | ~14 USD                      |
+| RDS db.t3.micro PostgreSQL               | ~15 USD                      |
+| Amazon Bedrock (embed + LLM, ~10K query) | ~5–20 USD                   |
+| S3 Standard (~10 GB)                     | ~0.25 USD                    |
+| DynamoDB on-demand                       | ~1 USD                       |
+| Lambda + SQS                             | ~1 USD                       |
+| Cognito                                  | Free tier (< 50K MAU)        |
+| CloudWatch + SNS                         | ~2 USD                       |
+| **Tổng ước tính**              | **~40–55 USD/tháng** |
 
 *Ghi chú:* Chi phí production với ALB, 2 EC2, RDS Multi-AZ sẽ cao hơn. Có thể giảm bằng ECS Fargate Spot, RDS Reserved Instance, hoặc tắt instance ngoài giờ lab.
 
 ### 7. Đánh giá rủi ro
 
-| Rủi ro | Mức ảnh hưởng | Giảm thiểu |
-| --- | --- | --- |
-| LLM hallucination | Cao | RAG bắt buộc trích dẫn context; prompt từ chối khi thiếu dữ liệu |
-| Chi phí Bedrock vượt ngân sách | Trung bình | CloudWatch alarm, giới hạn token, cache câu hỏi phổ biến |
-| Corpus pháp luật lỗi thời | Cao | Pipeline upload admin, versioning S3, soft delete |
-| Latency cao khi corpus lớn | Trung bình | pgvector index (IVFFlat/HNSW), RDS Proxy, benchmark định kỳ |
-| Lộ credential | Cao | Secrets Manager, IAM role cho EC2/Lambda, không hard-code key |
+| Rủi ro                             | Mức ảnh hưởng | Giảm thiểu                                                              |
+| ----------------------------------- | ----------------- | ------------------------------------------------------------------------- |
+| LLM hallucination                   | Cao               | RAG bắt buộc trích dẫn context; prompt từ chối khi thiếu dữ liệu |
+| Chi phí Bedrock vượt ngân sách | Trung bình       | CloudWatch alarm, giới hạn token, cache câu hỏi phổ biến            |
+| Corpus pháp luật lỗi thời       | Cao               | Pipeline upload admin, versioning S3, soft delete                         |
+| Latency cao khi corpus lớn         | Trung bình       | pgvector index (IVFFlat/HNSW), RDS Proxy, benchmark định kỳ            |
+| Lộ credential                      | Cao               | Secrets Manager, IAM role cho EC2/Lambda, không hard-code key            |
 
 ### 8. Kết quả kỳ vọng
 
