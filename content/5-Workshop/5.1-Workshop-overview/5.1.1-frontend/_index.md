@@ -1,75 +1,115 @@
 ---
 title: "Frontend"
-date: 2024-01-01
+date: 2026-08-11
 weight: 1
 chapter: false
 pre: " <b> 5.1.1 </b> "
 ---
-
 # Frontend
 
-Law-Chatbot has **two UIs**. On the EC2 demo, the primary UI is **Streamlit**. **Chainlit** is an alternate RAG chat UI that calls QAService in-process.
+The application uses **Streamlit** as its user interface framework. Streamlit enables fast building of interactive web applications with Python, making it well-suited for AI/ML applications and chatbots.
 
-| UI | Role in this workshop | Backend connection |
-| --- | --- | --- |
-| **Streamlit** | Main product UI, EC2 demo on port **8501** | HTTP **POST /ask** to api.main |
-| **Chainlit** | Compat / experimental RAG UI | In-process QAService |
+## Directory Structure
 
-## Streamlit — primary UI
+```text
+Frontend / UI
+├── .streamlit/
+│   └── config.toml          # Streamlit theme & server configuration
+│
+├── assets/
+│   └── style.css            # Custom CSS for the interface
+│
+└── views/
+    ├── login.py             # Login page
+    ├── register.py          # Registration page
+    ├── chatbot.py           # Main chat interface (User)
+    └── admin.py             # Admin Dashboard
+```
 
-### Entry and configuration
+## Detailed File Explanation
 
-- Entry file: **streamlit_app.py**
-- Page title: Vietnamese Legal Assistant; wide layout; CSS **assets/style.css**
-- On boot: initialize_database() and session state
-- Router: not logged in → register or login; logged in as admin → views.admin; otherwise → views.chatbot
-- Default port **8501** (.streamlit/config.toml and Docker Compose)
-- Local: streamlit run streamlit_app.py
-- Docker: APP_MODE=streamlit in deploy/entrypoint.sh
+### `.streamlit/config.toml`
 
-### Views
+Streamlit interface configuration file:
 
-| View | File | Responsibility |
-| --- | --- | --- |
-| Login | views/login.py | Login form → authenticate_user; block Inactive users; set role |
-| Register | views/register.py | Validate username/email/password → create_user with role user |
-| Chatbot | views/chatbot.py | Sessions, suggestions, API call, sources, feedback |
-| Admin | views/admin.py | KPI dashboard, user management, CSV logs, top_k / temperature / model settings |
+- `theme.primaryColor = "#0F4C81"`: Primary color is navy blue.
+- `theme.backgroundColor = "#F8FAFC"`: Light, eye-friendly primary background.
+- `theme.secondaryBackgroundColor = "#FFFFFF"`: White secondary background.
+- `theme.textColor = "#1E293B"`: Dark slate gray text color.
+- `theme.font = "sans serif"`: Sans-serif font.
+- `server.headless = true`: Runs in headless mode (no separate GUI window).
+- `server.port = 8501`: Runs on port 8501.
 
-### How it calls the API
+This is a configuration-only file, defining color themes and runtime settings without containing UI logic.
 
-In **views/chatbot.py**:
+### `assets/style.css`
 
-- Env var **API_URL** — defaults toward **http://127.0.0.1:8000/ask**; appends **/ask** if missing
-- On Compose: API_URL=http://api:8000/ask
-- process_user_query sends a POST JSON body with question and top_k
-- Expected JSON: answer, sources with title / snippet / score
-- **Chat history does not go through the API** — it is stored via src/storage on SQLite or Postgres
+Custom CSS file for detailed interface styling:
 
-### User journeys
+- **Color variables:** Defines shared color variables (primary, hover, background, text, border).
+- **Layout & Typography:** Increases font size and line-height for better readability of legal documents.
+- **Form & Input:** Card-style white forms for login/register, inputs with clear borders, hover/focus effects, and sharp placeholder text.
+- **Button:** Larger buttons, bold fonts, 12px border radius, with a prominent primary button.
+- **Sidebar:** White background with a separating border and a prominent red logout button.
+- **Chat bubbles:** User messages on the right (blue), assistant messages on the left (white/gray), with subtle shadows and rounded corners.
+- **Question suggestions (suggestion chips):** Displayed as horizontal chips with horizontal scrolling if there are too many.
 
-**End user:** Register / Login → Chatbot → create or select a session → ask → answer + source expander → like/dislike → logout.
+### `views/login.py`
 
-**Admin:** Login as admin → Admin Dashboard → KPIs, users, logs, settings → logout. Admins do **not** enter the default chatbot view.
+**Login Page**:
 
-## Chainlit — alternate UI
+- Displays a login form with two fields: username and password.
+- When the user submits the form, the system validates the login credentials against the database.
+- If the credentials are correct and the account is active, the user is logged in and redirected to the application.
+- If the credentials are incorrect or the account is disabled, the system displays the corresponding error message.
+- Includes a link to redirect to the registration page for new users.
 
-- Entry: **app.py**
-- Run: chainlit run app.py or scripts/run_chainlit.py; Docker APP_MODE=chainlit
-- Shares **QAService** with the RAG backend
-- Can log history to DynamoDB when ENABLE_CHAT_HISTORY=true
-- Local auth only when both CHAINLIT_DEV_USERNAME and CHAINLIT_DEV_PASSWORD are set; needs CHAINLIT_AUTH_SECRET
-- In the current code, the UI **updates after ask completes** — it does not token-stream with stream_token yet
+![1786494545703](image/_index.vi/1786494545703.png)
 
-## Frontend-related environment variables
+### `views/register.py`
 
-| Variable | Purpose |
-| --- | --- |
-| API_URL | **POST /ask** endpoint for Streamlit |
-| APP_DB_BACKEND | postgres or sqlite for users/chats |
-| USE_PGVECTOR | Influences app DB backend when APP_DB_BACKEND is unset |
-| PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD | Postgres app DB connection |
-| CHAINLIT_DEV_USERNAME, CHAINLIT_DEV_PASSWORD, CHAINLIT_AUTH_SECRET | Local Chainlit auth |
-| QA_TOP_K, ENABLE_CHAT_HISTORY, DYNAMODB_* | Chainlit / history settings |
+**Registration Page**:
 
-API_URL may be missing from .env.sample but is **required** when Streamlit talks to a separate FastAPI process.
+- Displays a registration form with fields: username, email, password, and confirm password.
+- The system validates the input data:
+  - Username must meet the minimum length, contain no spaces, and not duplicate an existing account.
+  - Email must be in a valid format.
+  - Password must meet length and complexity requirements (containing uppercase letters and numbers).
+  - Confirm password must match the entered password.
+- If the data is valid, a new account is created, and the user is redirected to the login page with a success message.
+- Includes a link to return to the login page for existing users.
+
+![1786494483070](image/_index.vi/1786494483070.png)
+
+### `views/chatbot.py`
+
+**Main chat interface for users**:
+
+- **Session Management**: Users can create new chat sessions, select previous sessions to continue, or delete unnecessary sessions.
+- **Submit Questions**: Users input questions, which are sent to the backend for processing to retrieve answers along with reference sources.
+- **Result Display**: Answers are shown in a conversational format, distinguishing between user and assistant messages. Reference sources are displayed in an expandable accordion for users to view in detail.
+- **Feedback/Rating**: Users can like/dislike answers to submit feedback, helping to improve system quality.
+- **Suggested Questions**: Displays sample questions for quick reference and usage.
+- **Backend Connection**: All questions are sent directly to the RAG backend via APIs to receive real-time answers, without using mocked data.
+
+![1786494928599](image/_index.vi/1786494928599.png)
+
+### `views/admin.py`
+
+**System Administration Interface for Admins**:
+
+- **Dashboard**: Displays overall metrics such as the number of users, questions, feedback, and satisfaction rate along with usage trend charts.
+
+![1786495178642](image/_index.vi/1786495178642.png)
+
+- **User Management**: Allows searching, filtering, adding new users, disabling or restoring user accounts. Supports exporting the list to a CSV file.
+
+![1786495224552](image/_index.vi/1786495224552.png)
+
+- **History & Logs**: View the history of user questions and feedback, supporting filtering and data exporting.
+
+![1786495255170](image/_index.vi/1786495255170.png)
+
+- **System Settings**: Allows adjustment of chatbot operational parameters (number of retrieved text chunks, temperature/creativity, max output tokens, and AI model selection).
+
+![1786495298545](image/_index.vi/1786495298545.png)
