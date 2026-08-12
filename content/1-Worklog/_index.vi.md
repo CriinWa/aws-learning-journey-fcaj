@@ -17,6 +17,6 @@ pre: " <b> 1. </b> "
 
 **Tuần 6:** [Triển khai môi trường staging, giám sát và kiểm thử hệ thống](1.6-week6/)
 
-**Tuần 7:** [Xây dựng quy trình CI/CD, triển khai CloudFront và hoàn thiện tài liệu](1.7-week7/)
+**Tuần 7:** [Xây dựng quy trình và hoàn thiện tài liệu](1.7-week7/)
 
 **Tuần 8:** [Rà soát hệ thống, kiểm soát chi phí và hoàn thiện dự án](1.8-week8/)

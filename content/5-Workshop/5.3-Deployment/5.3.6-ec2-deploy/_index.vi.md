@@ -3,7 +3,7 @@ title: "Deploy Docker trên EC2"
 date: 2026-08-11
 weight: 8
 chapter: false
-pre: " <b> 5.3.8. </b> "
+pre: " <b> 5.3.6. </b> "
 ---
 Hệ thống được triển khai theo mô hình Demo Production trên môi trường điện toán đám mây AWS, cụ thể là một máy chủ ảo **AWS EC2 Instance**
 

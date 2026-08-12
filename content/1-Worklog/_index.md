@@ -1,12 +1,14 @@
  
 
 ---
+
 title: "Worklog"
 date: 2026-08-15
 weight: 1
 chapter: false
 pre: " <b> 1. </b> "
----
+-------------
+
 **Week 1:** [AWS Foundations, Security, Cost Management, and Networking](1.1-week1/)
 
 **Week 2:** [Learning and Practicing Compute, Monitoring, Scaling, and Backup Services](1.2-week2/)
@@ -19,6 +21,6 @@ pre: " <b> 1. </b> "
 
 **Week 6:** [Staging Environment Deployment, Monitoring, and System Testing](1.6-week6/)
 
-**Week 7:** [Building the CI/CD Pipeline, Deploying CloudFront, and Finalizing Documentation](1.7-week7/)
+**Week 7:** [Building the Pipeline and Finalizing Documentation](1.7-week7/)
 
 **Week 8:** [System Review, Cost Control, and Project Completion](1.8-week8/)

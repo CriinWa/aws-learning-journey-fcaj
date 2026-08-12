@@ -3,7 +3,7 @@ title: "Cognito — Auth và RBAC"
 date: 2026-08-11
 weight: 7
 chapter: false
-pre: " <b> 5.3.7. </b> "
+pre: " <b> 5.3.5. </b> "
 ---
 Hệ thống sử dụng Amazon Cognito để quản lý tài khoản người dùng và phân quyền truy cập các chức năng của hệ thống trong môi trường production.
 
